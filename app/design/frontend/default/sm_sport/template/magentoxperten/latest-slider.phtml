@@ -1,0 +1,49 @@
+<?php
+
+$limit = 10;
+if ($this->getLimit() && $this->getLimit() > 0) {
+	$limit = $this->getLimit();
+}
+
+$title = $this->__("New Products");
+if ($this->getTitle() && $this->getTitle() !== null) {
+	$title = $this->getTitle();
+}
+
+$store_id = Mage::app()->getStore()->getId();
+$product_collection = Mage::getModel('catalog/product')
+                        ->getCollection()
+                        ->addFieldToFilter('visibility', Mage_Catalog_Model_Product_Visibility::VISIBILITY_BOTH)
+                        ->setPage(0,$limit)
+                        ->addAttributeToSort('created_at', 'DESC')
+                        ->addAttributeToSelect('*')
+			            ->setStoreId($store_id)
+			            ->addStoreFilter($store_id)
+                        ->load();
+
+
+?>
+<div class="new-products-slider">
+	<h2 class="section-title"><?php echo $title; ?></h2>
+
+	<div class="slick-slider">
+
+	<?php foreach ($product_collection as $key => $product): ?>
+		<div class="slide">
+			<div class="inner-wrap">
+				<div class="image col-xs-12 col-sm-6">
+					<img src="<?php echo $this->helper('catalog/image')->init($product, 'image')->constrainOnly(true)->keepAspectRatio(true)->keepFrame(false)->resize(600, null); ?>" alt="">
+				</div>
+				<div class="details col-xs-12 col-sm-6">
+					<h3><a href="<?php echo $product->getProductUrl(); ?>"><?php echo $product->getName(); ?></a></h3>
+					<div class="description">
+						<?php echo $product->getShortDescription(); ?>
+					</div>
+					<a class="see-more chevrons-right" href="<?php echo $product->getProductUrl(); ?>"><?php echo $this->__("See more"); ?></a>
+				</div>
+			</div>
+		</div>
+	<?php endforeach; ?>
+
+	</div>
+</div>

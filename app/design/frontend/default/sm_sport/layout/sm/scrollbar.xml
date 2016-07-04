@@ -1,0 +1,88 @@
+<?xml version="1.0"?>   
+<layout version="1.0">
+	<default>
+        <!--<reference name="head">
+            <action method="addCss"><stylesheet>sm/scrollbar/css/style_vert.css</stylesheet></action> 
+            <action method="addCss"><stylesheet>sm/scrollbar/css/style_horz.css</stylesheet></action>
+            <action method="addCss"><stylesheet>sm/scrollbar/css/stickytooltip.css</stylesheet></action>
+            <action method="addCss"><stylesheet>sm/scrollbar/css/jScrollPane.css</stylesheet></action> 
+            <action method="addCss"><stylesheet>sm/scrollbar/css/jquery.jscrollpane.css</stylesheet></action>    --> 	
+        	<!--<action method="addItem"><type>skin_css</type><name>sm/scrollbar/css/ie7.css</name><params/><if>IE 7</if></action>-->
+        <!--</reference>	-->
+		<reference name="head">
+			<action method="addCss"><stylesheet>css/animate.css</stylesheet></action> 
+		</reference>
+	</default>
+	<cms_index_index>
+        <reference name="head">
+            <action method="addCss"><stylesheet>sm/scrollbar/css/style_vert.css</stylesheet></action> 
+            <action method="addCss"><stylesheet>sm/scrollbar/css/style_horz.css</stylesheet></action>
+            <action method="addCss"><stylesheet>sm/scrollbar/css/stickytooltip.css</stylesheet></action>
+            <action method="addCss"><stylesheet>sm/scrollbar/css/jScrollPane.css</stylesheet></action> 
+            <action method="addCss"><stylesheet>sm/scrollbar/css/jquery.jscrollpane.css</stylesheet></action>     	
+        	<!--<action method="addItem"><type>skin_css</type><name>sm/scrollbar/css/ie7.css</name><params/><if>IE 7</if></action>-->
+        </reference>	
+		<reference name="left"> 
+			<block type="scrollbar/list" name="scrollbar.list.theme" before="-">
+			</block>
+		</reference>
+        <reference name="left">
+            <action method="unsetChild">
+                <name>catalog.leftcat</name>
+            </action>
+        </reference>	
+        <reference name="left">
+            <action method="unsetChild">
+                <name>right.poll</name>
+            </action>
+        </reference>		
+	</cms_index_index>
+	<cms_page_view>
+        <reference name="head">
+            <action method="addCss"><stylesheet>sm/scrollbar/css/style_vert.css</stylesheet></action> 
+            <action method="addCss"><stylesheet>sm/scrollbar/css/style_horz.css</stylesheet></action>
+            <action method="addCss"><stylesheet>sm/scrollbar/css/stickytooltip.css</stylesheet></action>
+            <action method="addCss"><stylesheet>sm/scrollbar/css/jScrollPane.css</stylesheet></action> 
+            <action method="addCss"><stylesheet>sm/scrollbar/css/jquery.jscrollpane.css</stylesheet></action>     	
+        	<!--<action method="addItem"><type>skin_css</type><name>sm/scrollbar/css/ie7.css</name><params/><if>IE 7</if></action>-->
+        </reference>	
+		<reference name="left"> 
+			<block type="scrollbar/list" name="scrollbar.list.theme" before="-">
+			</block>
+		</reference>
+        <reference name="left">
+            <action method="unsetChild">
+                <name>catalog.leftcat</name>
+            </action>
+        </reference>	
+        <reference name="left">
+            <action method="unsetChild">
+                <name>right.poll</name>
+            </action>
+        </reference>		
+	</cms_page_view>
+	
+	<scrollbar_index_index>
+		<reference name="root">
+			<action method="setTemplate"><template>page/2columns-right.phtml</template></action>
+		</reference>	
+        <reference name="head">
+            <action method="addCss"><stylesheet>sm/scrollbar/css/style_vert.css</stylesheet></action> 
+            <action method="addCss"><stylesheet>sm/scrollbar/css/style_horz.css</stylesheet></action>
+            <action method="addCss"><stylesheet>sm/scrollbar/css/stickytooltip.css</stylesheet></action>
+            <action method="addCss"><stylesheet>sm/scrollbar/css/jScrollPane.css</stylesheet></action> 
+            <action method="addCss"><stylesheet>sm/scrollbar/css/jquery.jscrollpane.css</stylesheet></action>     	
+        	<!--<action method="addItem"><type>skin_css</type><name>sm/scrollbar/css/ie7.css</name><params/><if>IE 7</if></action>-->
+        </reference>	
+		<reference name="content">
+			<block type="scrollbar/list" name="scrollbar.list.theme">
+				<!--<action method="setConfig">
+					<name>
+						<theme>theme1</theme>						
+					</name>
+				</action>-->
+			</block>
+		</reference>
+	</scrollbar_index_index>	
+</layout>   
+	

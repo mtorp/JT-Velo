@@ -1,0 +1,95 @@
+<?php
+/**
+ * Magento
+ *
+ * NOTICE OF LICENSE
+ *
+ * This source file is subject to the Academic Free License (AFL 3.0)
+ * that is bundled with this package in the file LICENSE_AFL.txt.
+ * It is also available through the world-wide-web at this URL:
+ * http://opensource.org/licenses/afl-3.0.php
+ * If you did not receive a copy of the license and are unable to
+ * obtain it through the world-wide-web, please send an email
+ * to license@magentocommerce.com so we can send you a copy immediately.
+ *
+ * DISCLAIMER
+ *
+ * Do not edit or add to this file if you wish to upgrade Magento to newer
+ * versions in the future. If you wish to customize Magento for your
+ * needs please refer to http://www.magentocommerce.com for more information.
+ *
+ * @category    design
+ * @package     base_default
+ * @copyright   Copyright (c) 2012 Magento Inc. (http://www.magentocommerce.com)
+ * @license     http://opensource.org/licenses/afl-3.0.php  Academic Free License (AFL 3.0)
+ */
+?>
+<?php 
+global $var_yttheme;
+global $config_theme;
+
+$keepFrame = ($config_theme['white_border_image'])?true:false;
+
+$upsell_image_type = $config_theme['catalog_product_list_upsell_image_type'];
+$upsell_image_width = $config_theme['catalog_product_list_upsell_image_width'];
+$upsell_image_height = $config_theme['catalog_product_list_upsell_image_height'];
+
+$ws_bgcolor =  Mage::helper('sport/data')->hex2rgb($config_theme['white_border_image_background_color']);
+
+$_helper = $this->helper('catalog/output'); 
+?>
+<?php if(count($this->getItemCollection()->getItems())): ?>
+<div class="box-up-sell catalog-category-view">
+    <h2><?php echo $this->__('You may also be interested in the following product(s)') ?></h2>
+    <div class="up-sell-products">
+    <?php  $this->setColumnCount(4); // uncomment this line if you want to have another number of columns. also can be changed in layout ?>
+	<?php $this->resetItemsIterator() ?>
+	<?php $this->_reviewsHelperBlock = $this->getLayout()->createBlock('review/helper'); ?>
+    <?php for($_i=0;$_i<$this->getRowCount();$_i++): ?>
+        <div <?php /*class="products-grid "*/?> >
+			<div class="row-fluid">
+        <?php for($_j=0;$_j<$this->getColumnCount();$_j++): ?>
+            <?php if($_product=$this->getIterableItem()): ?>
+				<?php 
+				$now = date("Y-m-d");
+				$newsFrom= substr($_product->getData('news_from_date'),0,10);
+				$newsTo=  substr($_product->getData('news_to_date'),0,10);
+				$specialprice = Mage::getModel('catalog/product')->load($_product->getId())->getSpecialPrice();
+
+				$this->_reviewsHelperBlock = $this->getLayout()->createBlock('review/helper');
+				?>            
+				<div class="span12" data-normal="span4" data-tablet="span4" data-stablet="span12">
+					<div class="item">
+						<div class="item-inner">
+							<div class="item-box">
+								<div class="product-image">
+									<?php if($specialprice){ ?>
+											<div class='sale-item'></div>
+									<?php } ?>
+									<?php if ($now>=$newsFrom && $now<=$newsTo){ ?>
+											<div class='new-item'></div>
+									<?php } ?>
+									
+																
+									<a href="<?php echo $_product->getProductUrl() ?>" title="<?php echo $this->stripTags($this->getImageLabel($_product, $upsell_image_type), null, true) ?>" class="product-imgs"><img src="<?php echo $this->helper('catalog/image')->init($_product, $upsell_image_type)->keepAspectRatio($keepFrame)->backgroundColor($ws_bgcolor)->resize($upsell_image_width, $upsell_image_height); ?>" alt="<?php echo $this->stripTags($this->getImageLabel($_product, $upsell_image_type), null, true) ?>" /></a>
+								</div>
+								<div class="product-box">
+									<h2 class="product-name"><a href="<?php echo $_product->getProductUrl() ?>" title="<?php echo $this->stripTags($_product->getName(), null, true) ?>"><?php echo $_helper->productAttribute($_product, $_product->getName(), 'name') ?></a></h2>
+									<div class="product-style-box clearfix">
+										<div class="price-block"><?php echo /*'<span>Price: </span>'.*/$this->getPriceHtml($_product, true, false) ?></div>
+									</div>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>		
+            <?php else: ?>
+            <?php endif; ?>
+        <?php endfor; ?>
+			</div>
+        </div>	<?php //end div class="product-grid" ?>
+    <?php endfor; ?>
+    </div>
+   <!-- <script type="text/javascript">decorateTable('upsell-product-table')</script>-->
+</div>
+<?php endif ?>

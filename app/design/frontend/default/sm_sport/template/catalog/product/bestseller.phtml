@@ -1,0 +1,81 @@
+<?php
+
+/**
+ * @author Branko Ajzele | http://activecodeline.com | branko.ajzele@surgeworks.com
+ * @license GPL
+ */
+$totalPerPage = 4;
+$counter = 	1;
+$visibility = array(
+                      Mage_Catalog_Model_Product_Visibility::VISIBILITY_BOTH,
+                      Mage_Catalog_Model_Product_Visibility::VISIBILITY_IN_CATALOG
+                  );
+
+$storeId = Mage::app()->getStore()->getId();
+$_productCollection = Mage::getResourceModel('reports/product_collection')
+                              ->addAttributeToSelect('*')
+                              ->addOrderedQty()
+                              ->addAttributeToFilter('visibility', $visibility)
+                              ->setOrder('ordered_qty', 'desc');
+
+
+//Mage_Reports_Model_Mysql4_Product_Collection
+?>
+
+<div class="bestsale-items">
+
+<div class="block-title">
+   <strong><?php echo $this->__('Best Sales') ?></strong>
+</div>
+<div class="block-content">
+	<?php foreach($_productCollection as $_product): ?>
+	
+	<?php
+	    $this->_reviewsHelperBlock = $this->getLayout()->createBlock('review/helper');
+	
+	        $categories = null;
+	        foreach (explode(",", $_product->category_ids) as $catId){
+	
+	          //Mage_Catalog_Model_Category
+	          $cat = Mage::getModel('catalog/category')
+	                        ->setStoreId(Mage::app()->getStore()->getId())
+	                        ->load($catId);
+	          $catName = $cat->getName();
+	
+	          $catLink = $cat->getUrlPath();
+	          $categories .= '<a href="'.$catLink.'" title="'.$catName.'">'.$catName.'</a>&nbsp;&nbsp;';
+	        }
+	
+	?>
+	
+	<?php if($counter <= $totalPerPage): ?>
+	<?php $productUrl =  $_product->getProductUrl() ?>
+	<div class="items items_<?php echo $counter ?> clearfix <?php if($counter == $totalPerPage){ ?>last<?php } ?>">
+		<div class="bestsale-img">
+		<a href="<?php echo $productUrl ?>" title="View <?php echo $_product->name ?>">
+			<img src="<?php echo $this->helper('catalog/image')->init($_product, 'image')->resize(77,77); ?>" alt="Product image"  />
+		</a>
+	
+		</div>
+		<div class="bestsale-info">
+			<h2 class="product-name"><a href="<?php echo $productUrl ?>"><?php echo $_product->getName() ?></a></h2>
+			<?php $this->setIdSuffix("_clone"); ?>
+			<?php  echo $this->getPriceHtml($_product); ?>
+			<?php $product = Mage::getModel('catalog/product')->load($_product->getId());
+				if($this->_reviewsHelperBlock->getSummaryHtml($product, false, false)):
+			 		echo $this->_reviewsHelperBlock->getSummaryHtml($product, false, false);
+				else:
+			?>	
+			<div class="ratings">
+				<p class="rating-links">
+				<a class="add-your-review" href="<?php echo Mage::getBaseUrl(); ?>/review/product/list/id/<?php echo $_product->getId(); ?>/#review-form">Add Review</a>
+				</p>
+			</div>	
+			<?php endif; ?>
+			
+		</div>
+	</div>
+	<?php endif; $counter++; ?>
+	<?php endforeach; ?>
+</div>
+</div>

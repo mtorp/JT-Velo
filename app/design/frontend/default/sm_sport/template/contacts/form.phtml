@@ -1,0 +1,112 @@
+<?php
+/**
+ * Magento
+ *
+ * NOTICE OF LICENSE
+ *
+ * This source file is subject to the Academic Free License (AFL 3.0)
+ * that is bundled with this package in the file LICENSE_AFL.txt.
+ * It is also available through the world-wide-web at this URL:
+ * http://opensource.org/licenses/afl-3.0.php
+ * If you did not receive a copy of the license and are unable to
+ * obtain it through the world-wide-web, please send an email
+ * to license@magentocommerce.com so we can send you a copy immediately.
+ *
+ * DISCLAIMER
+ *
+ * Do not edit or add to this file if you wish to upgrade Magento to newer
+ * versions in the future. If you wish to customize Magento for your
+ * needs please refer to http://www.magentocommerce.com for more information.
+ *
+ * @category    design
+ * @package     base_default
+ * @copyright   Copyright (c) 2012 Magento Inc. (http://www.magentocommerce.com)
+ * @license     http://opensource.org/licenses/afl-3.0.php  Academic Free License (AFL 3.0)
+ */
+?>
+<div class="row contact-form">
+	<div class="span12">
+		<div id="messages_product_view"><?php echo $this->getMessagesBlock()->getGroupedHtml() ?></div>
+		<div class="page-title">
+		    <h1><?php echo Mage::helper('contacts')->__('Contact Us') ?></h1>
+		</div>
+	</div>
+	<div class="span12" data-normal="span12" data-tablet="span12" data-stablet="span12">
+		<?php echo $this->getLayout()->createBlock('cms/block')->setBlockId('contact-desc')->toHtml() ?>
+	</div>	
+
+	<div class="span12" data-normal="span12" data-tablet="span12" data-stablet="span12">
+			<form action="<?php echo Mage::getUrl(); ?>contacts/index/post/" id="contactForm" method="post">
+				<div class="fieldset">
+					<h2 class="legend"><?php echo Mage::helper('contacts')->__('Contact Information') ?></h2>
+					<div class="form-list">
+								<div class="fields">
+									<div class="field clearfix">
+										<label for="name" class="required"><em>*</em><?php echo Mage::helper('contacts')->__('Name') ?></label>
+										
+										<div class="input-box">
+											<span class="forname logoinput">&nbsp;</span>
+											<input name="name" id="name" title="<?php echo Mage::helper('contacts')->__('Name') ?>" <?php /* onfocus="if(this.value=='<?php echo Mage::helper('contacts')->__('Name:') ?>') this.value='';" onblur="if(this.value=='') this.value='<?php echo Mage::helper('contacts')->__('Name:') ?>';" */?> value="<?php echo ($this->helper('contacts')->getUserName())?$this->htmlEscape($this->helper('contacts')->getUserName()):""; /* Mage::helper('contacts')->__('Name:'); ?> */ ?>" class="input-text required-entry" type="text" />
+										</div>
+									</div>
+									<div class="field clearfix">
+										<label for="email" class="required"><em>*</em><?php echo Mage::helper('contacts')->__('Email') ?></label>
+										
+										<div class="input-box">
+											<span class="foremail logoinput">&nbsp;</span>
+											<input name="email" id="email" title="<?php echo Mage::helper('contacts')->__('Email') ?>" <?php /* onfocus="if(this.value=='<?php echo Mage::helper('contacts')->__('Email:') ?>') this.value='';" onblur="if(this.value=='') this.value='<?php echo Mage::helper('contacts')->__('Email:') ?>';" */?>  value="<?php echo ($this->helper('contacts')->getUserEmail())?$this->htmlEscape($this->helper('contacts')->getUserEmail()):"";/*Mage::helper('contacts')->__('Email:');*/ ?>" class="input-text required-entry validate-email" type="text" />
+										</div>
+									</div>
+									<div class="field clearfix">
+										<label for="telephone"><?php echo Mage::helper('contacts')->__('Telephone') ?></label>
+										
+										<div class="input-box">
+											<span class="fortelephone logoinput">&nbsp;</span>
+											<input name="telephone" id="telephone" title="<?php echo Mage::helper('contacts')->__('Telephone') ?>" <?php /* onfocus="if(this.value=='<?php echo Mage::helper('contacts')->__('Telephone:') ?>') this.value='';" onblur="if(this.value=='') this.value='<?php echo Mage::helper('contacts')->__('Telephone:') ?>';"   value="<?php echo Mage::helper('contacts')->__('Telephone:'); ?>" */?> class="input-text" type="text" />
+										</div>
+									</div>
+									<?php /*
+			                        <div class="field hide-phone">
+			
+											<div class="buttons-set">
+												<p class="required"><em>*</em> <?php echo Mage::helper('contacts')->__('Required Fields') ?></p>
+												<input type="text" name="hideit" id="hideit" value="" style="display:none !important;" />
+												<button type="submit" title="<?php echo Mage::helper('contacts')->__('Submit') ?>" class="btn-contact"><span><span><?php echo Mage::helper('contacts')->__('submit comment') ?></span></span></button>
+											</div>
+			                        </div>
+			                        */?>
+								</div>
+								<div class="wide">
+									<label for="comment" class="required"><em>*</em><?php echo Mage::helper('contacts')->__('Comment') ?></label>
+									<div class="input-box">
+										<span class="forcomment logoinput">&nbsp;</span>
+										<textarea name="comment" id="comment" title="<?php echo Mage::helper('contacts')->__('Comment') ?>"  <?php /* onfocus="if(this.value=='<?php echo Mage::helper('contacts')->__('Comment:') ?>') this.value='';" onblur="if(this.value=='') this.value='<?php echo Mage::helper('contacts')->__('Comment:') ?>';"*/?> value="<?php echo Mage::helper('contacts')->__('Comment:'); ?>" class="required-entry input-text" cols="5" rows="3"><?php /* echo Mage::helper('contacts')->__('Comment:')*/ ?></textarea>
+									</div>
+								</div>
+		                        <div class="fields">
+										<div class="buttons-set">
+											<p class="required"><em>*</em> <?php echo Mage::helper('contacts')->__('Required Fields') ?></p>
+											<input type="text" name="hideit" id="hideit" value="" style="display:none !important;" />
+											<div class="g-recaptcha" data-sitekey="6LdsxSATAAAAAGtrCaETw8u2NyBh_JoBxMEgunfV"></div>
+											<button type="submit" title="<?php echo Mage::helper('contacts')->__('Submit') ?>" class="btn-contact"><span><span><?php echo Mage::helper('contacts')->__('submit comment') ?></span></span></button>
+										</div>
+		                        </div>
+					
+					</div>
+
+				</div>
+
+			</form>
+	</div>
+	<?php /*
+	<div class="contactform-content">
+		<?php echo $this->getLayout()->createBlock('cms/block')->setBlockId('contact-content')->toHtml() ?>
+	</div>  
+	*/?>
+</div>
+
+<script type="text/javascript">
+//<![CDATA[
+    var contactForm = new VarienForm('contactForm', true);
+//]]>
+</script>

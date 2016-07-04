@@ -1,0 +1,150 @@
+<?php
+/*------------------------------------------------------------------------
+ # SM Responsive Listting - Version 1.0
+ # Copyright (c) 2013 YouTech Company. All Rights Reserved.
+ # @license - Copyrighted Commercial Software
+ # Author: YouTech Company
+ # Websites: http://www.magentech.com
+-------------------------------------------------------------------------*/
+
+global $var_yttheme;
+$_helper = $this->helper('catalog/output');
+$smarthelper = Mage::helper('responsivelisting/utils');
+$list = $this->getProduct();
+$options = $this->getConfigObject();
+
+if(isset($list['items'])) {
+foreach($list['items']  as $item){ 
+	//Zend_Debug::dump($item);die;
+	$_product = Mage::getModel("catalog/product")->load($item->id);
+	$now = date("Y-m-d");
+	$newsFrom= substr($_product->getData('news_from_date'),0,10);
+	$newsTo=  substr($_product->getData('news_to_date'),0,10);
+	$specialprice = Mage::getModel('catalog/product')->load($_product->getId())->getSpecialPrice();
+
+	$this->_reviewsHelperBlock = $this->getLayout()->createBlock('review/helper');
+		
+?>
+	<div class="respl-item first-load category-<?php echo $item->catid; ?>" data-created="<?php echo strtotime($item->createdfrom); ?>" data-price="<?php echo $item->hits; ?>" data-title="<?php echo trim(strtoupper($item->title)); ?>" data-id="<?php echo $item->id; ?>" data-catid="<?php echo $item->catid ;?>">
+		<div class="span<?php echo 12/$options->nb_column1 ?>" data-normal="span<?php echo 12/$options->nb_column2 ?>" data-tablet="span<?php echo 12/$options->nb_column3 ?>" data-stablet="span<?php echo 12/$options->nb_column4 ?>">
+		<div class="item">
+			<div class="item-inner">
+				<div class="item-box">
+					<?php if( $options->item_cat_display == 1 ) {	?>
+					<?php 
+					$categoryIds = $_product->getCategoryIds();
+					if (is_array($categoryIds) and count($categoryIds) >= 1) {
+						$_cat = Mage::getModel('catalog/category')->load($categoryIds[0]);
+					};
+					?>									
+					<a class="cat-name" href="<?php echo $_cat->getUrl() ?>"><?php echo $_cat->getName(); ?></a>		
+					<?php } ?>		
+
+					<div class="product-image">
+						<?php if ($specialprice){ ?>
+								<div class='sale-item'></div>
+						<?php } ?>
+						<?php if ($now>=$newsFrom && $now<=$newsTo){ ?>
+								<div class='new-item'></div>
+						<?php } ?>									
+						<a href="<?php echo $_product->getProductUrl() ?>" title="<?php echo $this->stripTags($this->getImageLabel($_product, 'small_image'), null, true) ?>" class="product-imgs">
+							<img src="<?php echo $item->image;?>" alt="<?php echo $item->title;?>" />
+						</a>
+	                    <div class="popup-btn" >
+							<script type="text/javascript">
+							//<![CDATA[
+							    	$jsmart(document).ready(function($){
+							            $(".item a[rel='yt-colorbox<?php echo $_product->getId(); ?>']").colorbox({});
+							        });
+							//]]>
+							</script>   
+							<?php foreach (Mage::getModel('catalog/product')->load($_product->getId())->getMediaGalleryImages() as $_image) { ?>
+									<?php //if($_image->getFile() == $_product->getSmallImage() ) { continue; }?>
+                                       <a  style="" rel="yt-colorbox<?php echo $_product->getId(); ?>" href="<?php echo $this->helper('catalog/image')->init($_product, 'thumbnail', $_image->getFile())->resize(600, 400); ?>" ><span class="zoom-ico"></span></a>
+							<?php } ?>										                                  
+	                    </div>		
+					</div>
+					
+					<div class="product-box">
+						<div class="popup-box">
+							<?php if( $options->item_title_display == 1 ){ ?>
+								<h2 class="product-name">
+									<?php $_productNameStripped = $this->stripTags($_product->getName(), null, true); ?>
+									<?php
+										if ( $this->product_title_max_length > 0){
+											$_productNameTruncated = Mage::helper('core/string')->truncate($_productNameStripped, $this->product_title_max_length);
+										}
+									?>											
+									<a href="<?php echo $_product->getProductUrl() ?>" title="<?php echo $this->stripTags($_product->getName(), null, true) ?>"><?php echo $_helper->productAttribute($_product, $_product->getName() , 'name'); ?></a>
+								</h2>
+							<?php  } ?>
+  
+						</div>									
+						<div class="product-style-box clearfix">
+						
+								<?php if ($options->item_price_disp== 1): ?>
+								<div class="price-block"><?php echo /*'<span>Price: </span>'.*/$this->getPriceHtml($_product, true, false) ?></div>
+								<?php endif; ?> 
+								
+								
+								<div class="actions">
+									<?php if($_product->isSaleable()): ?>
+										<a title="<?php echo $this->__('Add to Cart') ?>" href="javascript:void(0);<?php //echo $this->getAddToCartUrl($_product) //allow add product to cart and then redirect to cart page ?>" class="btn-cart" onclick="setLocation('<?php echo $this->getAddToCartUrl($_product) ?>')"><span><span <?php /* class="icon-plus" */ ?>><?php echo $this->__('Add to Cart') ?></span></span></a>
+									<?php else: ?>
+										<p class="availability out-of-stock"><span><?php echo $this->__('Out of stock') ?></span></p>
+									<?php endif; ?>
+								</div>
+								
+							<?php 
+								if( $options->item_review_disp ){
+									 $product = Mage::getModel('catalog/product')->load($_product->getId());
+									 
+									if($this->_reviewsHelperBlock->getSummaryHtml($product, false, false)){
+										echo $this->_reviewsHelperBlock->getSummaryHtml($product, false, false);
+									}
+								}
+							?>											
+						</div>
+						<?php //if($this->product_addtowishlist OR $this->product_addtocompare){ ?>
+						<div class="product-add-box clearfix">
+							<ul>
+								<?php if ($this->helper('wishlist')->isAllow() ) : ?>
+								<li><?php /*<span class="inner-border blur-mask"></span><span class="inner-border list-icon"></span>*/?><a href="<?php echo $this->helper('wishlist')->getAddUrl($_product) ?>" class="link-wishlist"><?php echo $this->__('Add to Wishlist') ?></a></li>
+								<?php endif; ?>
+								
+								<?php if($_compareUrl=$this->getAddToCompareUrl($_product)): ?>
+								<li><?php /*<span class="inner-border blur-mask"></span><span class="inner-border list-icon"></span>*/?><a href="<?php echo $_compareUrl ?>" class="link-compare"><?php echo $this->__('Add to Compare') ?></a></li>
+								<?php endif; ?>	
+							</ul>
+						</div>	
+						<?php //} ?>
+						
+						<?php if( $options->item_desc_display == 1 ) {?>
+							<div class="item-description">
+								<?php echo $item->description; ?>
+							</div>
+						<?php } ?>	
+						
+						<?php if($options->item_readmore_display == 1){?>
+						<div class="item-readmore">
+							<a href="<?php echo $item->link ?>" <?php echo $smarthelper->getTargetAttr($options->product_links_target);?> onclick="javascript: return true"; title="<?php echo $item->title?>" data-arrow="&#187;" >
+								<?php echo $options->item_readmore_text; ?>
+							</a>
+						</div>
+						<?php } ?>
+						
+						<?php /*
+						<div class="item_readmore">
+							<a title="<?php  ?>" href="<?php echo $_product->getProductUrl() ?>"><?php echo $this->__('read more') ?></a>
+						</div>  
+						*/ ?>							
+					</div>	
+													
+
+				</div>
+			</div>
+		</div>
+		</div>
+	</div>
+<?php } 
+} ?>

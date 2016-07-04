@@ -1,0 +1,368 @@
+<?php
+/**
+ * Magento
+ *
+ * NOTICE OF LICENSE
+ *
+ * This source file is subject to the Academic Free License (AFL 3.0)
+ * that is bundled with this package in the file LICENSE_AFL.txt.
+ * It is also available through the world-wide-web at this URL:
+ * http://opensource.org/licenses/afl-3.0.php
+ * If you did not receive a copy of the license and are unable to
+ * obtain it through the world-wide-web, please send an email
+ * to license@magentocommerce.com so we can send you a copy immediately.
+ *
+ * DISCLAIMER
+ *
+ * Do not edit or add to this file if you wish to upgrade Magento to newer
+ * versions in the future. If you wish to customize Magento for your
+ * needs please refer to http://www.magentocommerce.com for more information.
+ *
+ * @category    design
+ * @package     base_default
+ * @copyright   Copyright (c) 2012 Magento Inc. (http://www.magentocommerce.com)
+ * @license     http://opensource.org/licenses/afl-3.0.php  Academic Free License (AFL 3.0)
+ */
+?>
+<?php
+/**
+ * Product list template
+ *
+ * @see Mage_Catalog_Block_Product_List $this
+ */
+
+/**
+ * Catalog Model Product
+ *
+ * @see Mage_Catalog_Model_Product $_product
+ */
+
+/**
+ * Catalog product link model - control render image
+ *
+ * @see Mage_Catalog_Model_Product_Image $_image
+ */
+?>
+
+<?php
+
+function in_array_r($needle, $haystack, $strict = false) {
+    foreach ($haystack as $item) {
+        if (($strict ? $item === $needle : $item == $needle) || (is_array($item) && in_array_r($needle, $item, $strict))) {
+            return true;
+        }
+    }
+
+    return false;
+}
+
+	global $var_yttheme;
+	global $config_theme;
+	
+	$keepFrame = ($config_theme['white_border_image'])?true:false;
+
+	$list_image_type = $config_theme['catalog_product_view_list_image_type'];
+	$list_image_width = $config_theme['catalog_product_view_list_image_width'];
+	$list_image_height = $config_theme['catalog_product_view_list_image_height'];
+	
+	$grid_image_type = $config_theme['catalog_product_view_grid_image_type'];
+	$grid_image_width = $config_theme['catalog_product_view_grid_image_width'];
+	$grid_image_height = $config_theme['catalog_product_view_grid_image_height'];
+
+	$media_image_type = $config_theme['catalog_product_view_media_thumbnail_image_type'];
+	$media_image_width = $config_theme['catalog_product_view_media_default_image_width'];
+	$media_image_height = $config_theme['catalog_product_view_media_default_image_height'];
+	
+	$ws_bgcolor =  Mage::helper('sport/data')->hex2rgb($config_theme['white_border_image_background_color']);
+
+	$_productCollection=$this->getLoadedProductCollection();
+    $_helper = $this->helper('catalog/output');
+?>
+<?php if(!$_productCollection->count()): ?>
+<p class="note-msg"><?php echo $this->__('There are no products matching the selection.') ?></p>
+<?php else: ?>
+<div class="category-products">
+	<?php echo $this->getMessagesBlock()->getGroupedHtml() ?>
+    <?php echo $this->getToolbarHtml() ?>
+    <?php // List mode ?>
+    <?php if($this->getMode()!='grid'): ?>
+    <?php $_iterator = 0; ?>
+    <ol class="products-list" id="products-list"> 
+    <?php foreach ($_productCollection as $_product): ?>
+    	<?php 
+
+    	$_product->load($_product->getId());
+		$count_input_qty++;
+		$now = date("Y-m-d");
+		$newsFrom= substr($_product->getData('news_from_date'),0,10);
+		$newsTo=  substr($_product->getData('news_to_date'),0,10);
+		$specialprice = Mage::getModel('catalog/product')->load($_product->getId())->getSpecialPrice(); 
+               
+		?>    
+        <li class="item<?php if( ++$_iterator == sizeof($_productCollection) ): ?> last<?php endif; ?>">
+				<div class="row product">
+					<?php // Product Image ?>
+					<div class="col-sm-4">
+						<div class="product-image">
+							<?php if($specialprice){ ?>
+									<div class='sale-item'></div>
+							<?php } ?>
+							<?php if ($now>=$newsFrom && $now<=$newsTo){ ?>
+									<div class='new-item'></div>
+							<?php } ?>
+							<?php if ($isBestProduct){ ?>
+									<div class='best-item'></div>
+							<?php } ?>
+							<?php
+									// Get associated products' colors and images
+									if($_product->isConfigurable()):
+										$associated_products = $_product->getTypeInstance(true)->getUsedProducts(null, $_product);
+										$assoc_count = count($associated_products);
+										if ($assoc_count  > 0) {
+											$colors = array();
+											for ($j=0; $j < $assoc_count; $j++) {
+												$associated = Mage::getModel('catalog/product')->load($associated_products[$j]->getId());
+												if ($associated->isSaleable() && floor($associated->getStockItem()->getQty()) > 0 ) {
+													$color = $associated->getColorCode();
+													if(!in_array_r($color, $colors)) {
+														$colors[$j]["color"] = $color;
+														$productMediaConfig = Mage::getModel('catalog/product_media_config');
+														$colors[$j]["image"]  = $productMediaConfig->getMediaUrl($associated->getImage());
+													}
+												}
+											}
+										}?>
+										<div class="colors">
+											<?php foreach ($colors as $key => $color): ?>
+												<?php
+												// Measure color lightness and give border if neccessary
+												$hex = str_replace("#", "", $color["color"]);
+												if(strlen($hex) == 3) {
+													$hex = $hex[0] . $hex[0] . $hex[1] . $hex[1] . $hex[2] . $hex[2];
+												}
+
+												$r = hexdec(substr($hex,0,2));
+												$g = hexdec(substr($hex,2,2));
+												$b = hexdec(substr($hex,4,2));
+
+												$lightness = $r+$g+$b;
+
+												$class = "";
+												if ($lightness < 200) $class = "dark";
+												if ($lightness > 500) $class = "light";
+
+												?>
+												<div class="color <?php echo $class; ?>" data-image="<?php echo $color["image"]; ?>" style="background-color: <?php echo $color["color"]; ?>;"></div>
+											<?php endforeach; ?>
+										</div>
+									<?php endif; ?>						
+							<a href="<?php echo $_product->getProductUrl() ?>" title="<?php echo $this->stripTags($this->getImageLabel($_product, $list_image_type), null, true) ?>" class="product-imgs image"><img class="default" src="<?php echo $this->helper('catalog/image')->init($_product, 'image')->constrainOnly(true)->keepAspectRatio(true)->keepFrame(false)->resize(600, null); ?>" alt="<?php echo $this->stripTags($this->getImageLabel($_product, $list_image_type), null, true) ?>" /></a>
+                            <div class="popup-btn" >
+								<script type="text/javascript">
+									//<![CDATA[
+									    	$jsmart(document).ready(function($){
+									            $(".item a[rel='yt-colorbox<?php echo $_product->getId(); ?>']").colorbox({});
+									        });
+									//]]>
+								</script>   
+								<?php foreach (Mage::getModel('catalog/product')->load($_product->getId())->getMediaGalleryImages() as $_image) { ?>
+										<?php //if($_image->getFile() == $_product->getSmallImage() ) { continue; }?>
+	                                        		<a  style="" rel="yt-colorbox<?php echo $_product->getId(); ?>" href="<?php echo $this->helper('catalog/image')->init($_product, $media_image_type, $_image->getFile())->resize($media_image_width, $media_image_height); ?>" ><span class="zoom-ico"></span></a>
+								<?php } ?>										                                  
+                           </div>						
+						</div>
+					</div>
+					<?php // Product description ?>
+					<div class="col-sm-8">
+						<div class="product-shop">
+							<?php /* <div class="f-fix"> */ ?>
+								<?php $_productNameStripped = $this->stripTags($_product->getName(), null, true); ?>
+								<h2 class="product-name"><a href="<?php echo $_product->getProductUrl() ?>" title="<?php echo $_productNameStripped; ?>"><?php echo $_helper->productAttribute($_product, $_product->getName() , 'name'); ?></a></h2>
+								
+								<div class="price-block"><?php echo '<span>Price: </span>'.$this->getPriceHtml($_product, true, false) ?></div>
+																
+								<div class="wrap-info">
+									<?php if($_product->getRatingSummary()): ?>
+									<?php echo $this->getReviewsSummaryHtml($_product) ?>
+									<?php endif; ?>
+								</div>
+
+								<div class="desc std">
+									<?php $s_des = $_helper->productAttribute($_product, $_product->getShortDescription(), 'short_description'); ?>
+									<?php echo substr($s_des ,0, 150).'...' ; ?>
+								</div>
+								
+								<div class="product-box">
+									<?php if($_product->isSaleable() && Mage::getSingleton('customer/session')->isLoggedIn()): ?>									
+										<a title="<?php echo $this->__('Add to Cart') ?>" href="javascript:void(0);<?php //echo $this->getAddToCartUrl($_product) //allow add product to cart and then redirect to cart page ?>" class="btn-cart" onclick="setLocation('<?php echo $this->getAddToCartUrl($_product) ?>')"><span><span <?php /* class="icon-plus" */ ?>><?php echo $this->__('Add to Cart') ?></span></span></a>
+									<?php elseif(!Mage::getSingleton('customer/session')->isLoggedIn()): ?>
+										<a class="btn-cart details" title="<?php echo $this->__('Details') ?>" href="<?php echo $_product->getProductUrl() ?>"><span><span <?php /* class="icon-plus" */ ?>><?php echo $this->__('Details') ?></span></span></a>
+									<?php else: ?>
+										<p class="availability out-of-stock"><span><?php echo $this->__('Out of stock') ?></span></p>
+									<?php endif; ?>							
+								</div>							
+							<?php /* </div> */ ?>
+						</div>
+					</div>
+				</div>
+        </li>
+    <?php endforeach; ?>
+    </ol>
+    <script type="text/javascript">decorateList('products-list', 'none-recursive')</script>
+
+    <?php else: ?>
+
+    <?php // Grid Mode ?>
+
+    <?php $_collectionSize = $_productCollection->count() ?>
+    <?php $_columnCount = $this->getColumnCount(); ?>
+    <?php $i=0; foreach ($_productCollection as $_product): ?>
+    	<?php 
+    	$_product->load($_product->getId());
+		$now = date("Y-m-d");
+		$newsFrom= substr($_product->getData('news_from_date'),0,10);
+		$newsTo=  substr($_product->getData('news_to_date'),0,10);
+		$specialprice = Mage::getModel('catalog/product')->load($_product->getId())->getSpecialPrice(); 
+
+		$this->_reviewsHelperBlock = $this->getLayout()->createBlock('review/helper'); 
+		?>
+		
+        <?php if ($i++==0): ?>
+        <div class="products-grid category-products">
+        
+                   
+			<div class="row">
+			<?php endif ?>
+				<div class="col-sm-6 col-md-4">
+					<div class="item product card">
+						<div class="item-inner">
+							<div class="item-box">
+								<div class="product-image">
+									<?php if ($specialprice){ ?>
+											<div class='sale-item'></div>
+									<?php } ?>
+									<?php if ($now>=$newsFrom && $now<=$newsTo){ ?>
+											<div class='new-item'></div>
+									<?php } ?>
+									
+									<?php
+									// Get associated products' colors and images
+									if($_product->isConfigurable()):
+										$associated_products = $_product->getTypeInstance(true)->getUsedProducts(null, $_product);
+										$assoc_count = count($associated_products);
+										if ($assoc_count  > 0) {
+											$colors = array();
+											for ($j=0; $j < $assoc_count; $j++) {
+												$associated = Mage::getModel('catalog/product')->load($associated_products[$j]->getId());
+												if ($associated->isSaleable() && floor($associated->getStockItem()->getQty()) > 0 ) {
+													$color = $associated->getColorCode();
+													if(!in_array_r($color, $colors)) {
+														$colors[$j]["color"] = $color;
+														$productMediaConfig = Mage::getModel('catalog/product_media_config');
+														$colors[$j]["image"]  = $productMediaConfig->getMediaUrl($associated->getImage());
+													}
+												}
+											}
+										}?>
+										<div class="colors">
+											<?php foreach ($colors as $key => $color): ?>
+												<?php
+												// Measure color lightness and give border if neccessary
+												$hex = str_replace("#", "", $color["color"]);
+												if(strlen($hex) == 3) {
+													$hex = $hex[0] . $hex[0] . $hex[1] . $hex[1] . $hex[2] . $hex[2];
+												}
+
+												$r = hexdec(substr($hex,0,2));
+												$g = hexdec(substr($hex,2,2));
+												$b = hexdec(substr($hex,4,2));
+
+												$lightness = $r+$g+$b;
+
+												$class = "";
+												if ($lightness < 200) $class = "dark";
+												if ($lightness > 500) $class = "light";
+
+												?>
+												<div class="color <?php echo $class; ?>" data-image="<?php echo $color["image"]; ?>" style="background-color: <?php echo $color["color"]; ?>;"></div>
+											<?php endforeach; ?>
+										</div>
+									<?php endif; ?>							
+									<a href="<?php echo $_product->getProductUrl() ?>" title="<?php echo $this->stripTags($this->getImageLabel($_product, $grid_image_type), null, true) ?>" class="product-imgs image">
+
+									
+										<img class="default" src="<?php echo $this->helper('catalog/image')->init($_product, 'image')->constrainOnly(true)->keepAspectRatio(true)->keepFrame(false)->resize(600, null); ?>" alt="<?php echo $this->stripTags($this->getImageLabel($_product, $grid_image_type), null, true) ?>" />
+									</a>
+                                    <div class="popup-btn" >
+										<script type="text/javascript">
+											//<![CDATA[
+											    	$jsmart(document).ready(function($){
+											            $(".item a[rel='yt-colorbox<?php echo $_product->getId(); ?>']").colorbox({});
+											        });
+											//]]>
+										</script>   
+										<?php foreach (Mage::getModel('catalog/product')->load($_product->getId())->getMediaGalleryImages() as $_image) { ?>
+												<?php //if($_image->getFile() == $_product->getSmallImage() ) { continue; }?>
+                                        		<a  style="" rel="yt-colorbox<?php echo $_product->getId(); ?>" href="<?php echo $this->helper('catalog/image')->init($_product, $media_image_type, $_image->getFile())->resize($media_image_width, $media_image_height); ?>" ><span class="zoom-ico"></span></a>
+										<?php } ?>										                                  
+                                    </div>									
+								</div>
+								<div class="product-box">
+									<div class="popup-box">
+									
+										<h2 class="product-name"><a href="<?php echo $_product->getProductUrl() ?>" title="<?php echo $this->stripTags($_product->getName(), null, true) ?>"><?php echo $_helper->productAttribute($_product, $_product->getName(), 'name') ?></a></h2>
+
+									</div> 								
+									<div class="product-style-box clearfix">
+										<div class="price-block"><?php echo /*'<span>Price: </span>'.*/$this->getPriceHtml($_product, true, false) ?></div>
+									
+										<div class="actions">
+											<?php if($_product->isSaleable() && Mage::getSingleton('customer/session')->isLoggedIn()): 
+										   
+											//var_dump( $this->getBaseURL());
+											//var_dump($this->getAddToCartUrl($_product));
+											?>
+												<a title="<?php echo $this->__('Add to Cart') ?>" href="javascript:void(0);<?php //echo $this->getAddToCartUrl($_product) //allow add product to cart and then redirect to cart page ?>" class="btn-cart" onclick="setLocation('<?php echo $this->getAddToCartUrl($_product) ?>')"><span><span <?php /* class="icon-plus" */ ?>><?php echo $this->__('Add to Cart') ?></span></span></a>
+											<?php elseif(!Mage::getSingleton('customer/session')->isLoggedIn()): ?>
+												<a class="btn-cart details" title="<?php echo $this->__('Details') ?>" href="<?php echo $_product->getProductUrl() ?>"><span><span <?php /* class="icon-plus" */ ?>><?php echo $this->__('Details') ?></span></span></a>
+											<?php else: ?>
+												<p class="availability out-of-stock"><span><?php echo $this->__('Out of stock') ?></span></p>
+											<?php endif; ?>
+										</div>
+										<?php $product = Mage::getModel('catalog/product')->load($_product->getId());
+											if($this->_reviewsHelperBlock->getSummaryHtml($product, false, false)){
+												echo $this->_reviewsHelperBlock->getSummaryHtml($product, false, false);
+											}
+										?>											
+									</div>							
+									<?php /*									
+									<div class="item-description">
+											<?php $des = $_product->getShortDescription(); echo substr($des,0, 70).'...' ; ?>
+									</div>
+									*/?>
+									<?php // if($_product->getRatingSummary()): ?>
+									<?php // echo $this->getReviewsSummaryHtml($_product, 'short') ?>
+									<?php // endif; ?>
+
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+			<?php if ($i==$_collectionSize): ?>
+			</div>
+        </div> <?php //[end]  products-grid	?>
+        <?php endif ?>
+        <?php endforeach ?>
+        <script type="text/javascript">decorateGeneric($$('ul.products-grid'), ['odd','even','first','last'])</script>
+    <?php endif; ?>
+
+    <div class="toolbar-bottom">
+        <?php echo $this->getToolbarHtml() ?>
+    </div>
+</div>
+<script type="text/javascript">
+		$jsmart("#toolbar-limit select").uniform(); 
+		$jsmart("#toolbar-sort-by select").uniform(); 
+</script>
+<?php endif; ?>

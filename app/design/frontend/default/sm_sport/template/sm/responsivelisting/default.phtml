@@ -1,0 +1,200 @@
+<?php
+/*------------------------------------------------------------------------
+ # SM Responsive Listting - Version 1.0
+ # Copyright (c) 2013 YouTech Company. All Rights Reserved.
+ # @license - Copyrighted Commercial Software
+ # Author: YouTech Company
+ # Websites: http://www.magentech.com
+-------------------------------------------------------------------------*/
+
+$smarthelper = Mage::helper('responsivelisting/utils');
+$list = $this->getProduct();
+$items = $this->_getItems();
+//var_dump($items);
+$id = $this->generateHash();
+//Zend_debug::dump($id);
+$count = $this->getTotal();
+$total = count($count);
+//$count_item = count($list['items']);
+//Zend_debug::dump($list);
+$options = $this->getConfigObject();
+//Zend_debug::dump($options);
+$instance	= rand().time();
+$tag_id = 'sm_responsive_listing_'.rand().time();
+echo $this->getScriptTags();
+include 'default_js.phtml';
+?>
+<!--[if lt IE 9]><div id="<?php echo $tag_id; ?>" class="sm-responsive-listing msie lt-ie9"><![endif]-->
+<!--[if IE 9]><div id="<?php echo $tag_id; ?>" class="sm-responsive-listing msie"><![endif]-->
+<!--[if gt IE 9]><!--><div id="<?php echo $tag_id; ?>" class="sm-responsive-listing"><!--<![endif]-->
+   	<?php if( $options->pretext != ""){ ?>
+		<div class="respl-pretext">
+			<?php echo $options->pretext;?>
+		</div>
+   	<?php }?>
+   	<?php if( $this->getData("custom_title")){ ?>   
+   	<div class="block-title">
+   		<h3 style=""><?php echo $this->getData("custom_title")?></h3>
+   	</div>
+   	<?php } ?>
+   	<?php if( $this->getData("custom_desc")){ ?>  
+   	<div class="des-block"><?php echo $this->getData("custom_desc")?></div>
+   	<?php } ?>
+	<div class="respl-wrap cf">
+		<div class="respl-header">
+			<?php $maxwidth = ( $options->sort_byform_display == 0 && $options->layout_select_display == 0 )?'max-width:100%':'';?>
+			<div class="respl-categories" data-label="Category" style="<?php echo $maxwidth ?>"  >
+				<div class="respl-cats-wrap respl-group"  >
+					<div class="cats-curr respl-btn dropdown-toggle" data-toggle="dropdown">
+						<span class="sort-curr" data-filter_value="">All</span>
+						<span class="sort-arrow respl-arrow"></span>
+					</div>
+					<ul class="respl-cats respl-dropdown-menu respl-option" data-option-key="filter">
+						<?php foreach($list['categories'] as $items){?>
+							<li class="respl-cat <?php echo (isset($items->sel))?$items->sel:''; ?>" data-value="<?php echo $items->id ?>">
+								<a href="#<?php echo $tag_id; ?>" data-rl_value="<?php echo ($items->id == '*')?'*':'.category-'.$items->id?>" class="<?php echo ($options->count_items_display == 0)?'respl-count':''; ?>" data-count="<?php echo $items->count ?>">
+									<?php echo $items->title == 'All'?'All':$items->title; ?>
+								</a>
+							</li>
+						<?php }?>
+					</ul>
+					<div class="clear"></div>
+				</div>
+			</div>
+			<div class="respl-sort-view" >
+				<?php if( $options->sort_byform_display == 1 ){
+					$value_curr ='';
+					$data_curr =  '';
+					$select_sort =   trim( $options->source_order_by );
+					switch($select_sort){
+						case 'id':
+							 $value_curr = 'id';
+							 $data_curr = 'ID';
+							 break;	
+						case 'title':
+							 $value_curr = 'title';
+							 $data_curr = 'Title';
+							 break;
+						case 'price':
+							$value_curr = 'price';
+							$data_curr = 'Price';
+							break;
+						case 'created':
+							$value_curr = 'created';
+							$data_curr = 'Recently Added';
+							break;
+						default:
+							$value_curr = 'title';
+							$data_curr = 'Title';
+							break;
+					}
+					$a = array();
+					$oderbys  = array();
+					$oder  = $options->itemsOrdering_display;
+					if( $oder != ""){
+						$oderbys = explode(',', $oder);
+					}
+					if(!empty($oderbys)) {
+							$value_first = $value_curr;
+							$data_first = $data_curr;
+						if(in_array($value_curr,$oderbys)) {
+							 $value_first = $value_curr;
+							 $data_first = $data_curr;
+						} else {
+							$value_first = $oderbys[0];
+							if($oderbys[0] == 'id'){
+								$data_first = 'ID';
+							}elseif($oderbys[0] == 'title'){
+								$data_first = 'Title';
+							}else if($oderbys[0] == 'price' ){
+								$data_first = 'Price';
+							}else if($oderbys[0] == 'created' ){
+								$data_first = 'Recently Added';
+							}else if($oderbys[0] == 'random' ){
+								$data_first = 'Random';
+							}
+						}
+					
+						?>
+							<div class="respl-sort" data-label="Sort by" >
+								<div class="sort-wrap respl-group">
+									<div class="sort-inner respl-btn dropdown-toggle"  data-curr_value="<?php echo  $value_first; ?>" data-curr="<?php echo $data_first ?>">
+										<span class="sort-arrow respl-arrow"></span>
+									</div>
+									<ul class="sort-select respl-dropdown-menu respl-option" data-option-key="sortBy">
+										<?php foreach($oderbys as $key => $oder){
+											if($oder == 'id') { ?>
+												<li ><a href="#<?php echo $tag_id; ?>" data-rl_value="id">ID</a></li>
+											<?php } 
+											elseif($oder == 'title') { ?>
+												<li ><a href="#<?php echo $tag_id; ?>" data-rl_value="title">Title</a></li>
+											<?php } 
+											elseif($oder == 'price') {
+											?>
+												<li ><a href="#<?php echo $tag_id; ?>" data-rl_value="hits">Price</a></li>
+											<?php } 
+											elseif($oder == 'created') {
+											?>
+												<li ><a href="#<?php echo $tag_id; ?>" data-rl_value="created">Recently Added</a></li>
+											<?php }
+											elseif($oder == 'random') { 
+											?>
+											<li ><a href="#<?php echo $tag_id; ?>" data-rl_value="random">Random</a></li>
+											<?php }
+										}	?>	
+									</ul>
+								</div>
+							</div>
+				<?php }}?>
+				<?php if( $options->layout_select_display ) {?>
+				<ul class="respl-view respl-option" data-label="View" data-option-key="layoutMode">
+					<li class="view-grid <?php echo ( $options->default_view )?'sel':''?>">
+						<a href="#<?php echo $tag_id; ?>" data-rl_value="fitRows">
+						</a>
+					</li>
+					<li class="view-list <?php echo ($options->default_view == 0)?'sel':''?>">
+						<a href="#<?php echo $tag_id; ?>" data-rl_value="straightDown">
+						</a>
+					</li>
+				</ul>
+				<?php }?>
+			</div>
+		</div>
+		
+		<?php //$class_respl= 'respl01-'.$options->nb_column1.' respl02-'.$options->nb_column2.' respl03-'.$options->nb_column3.' respl04-'.$options->nb_column4 ?>
+		<div class="products-grid category-products">
+			<div class="row">
+				<div data-test="mx36" class="respl-items <?php //echo $class_respl?> <?php echo ($options->default_view == 1)?'grid':'list'?> cf  module-<?php echo $id;?>">
+					<?php include 'default_items.phtml'; ?>
+				</div>
+			</div>
+		</div>
+
+		<?php $classloaded = ($options->product_limitation >= $total || $options->product_limitation == 0 )?'loaded':'';?>
+
+		<div class="respl-loader respl-btn <?php echo $classloaded?>" >
+			<a class="respl-button" href="#<?php echo $tag_id; ?>"  data-rl_allready="All ready" data-rl_start="<?php echo $options->product_limitation;?>" data-rl_ajaxurl="<?php echo Mage::getBaseUrl()."responsivelisting/index/ajax";?>" data-rl_load="<?php echo $options->product_limitation;?>" data-rl_total="<?php echo $total; ?>" data-rl_catid="<?php echo $options->product_category;?>" data-rl_moduleid="<?php echo $id; ?>">
+				<?php if (!$classloaded){?>
+				<span class="loader-image"></span>
+				<?php } ?>
+				<span class="loader-label" >
+					<?php if ($classloaded){
+						echo "All ready";
+					} else { ?>
+					<?php echo "Load more ";?> (<span class="load-number" data-more="<?php 
+					if($total - $options->product_limitation < $options->product_limitation){
+					echo $total - $options->product_limitation;
+					}else{
+					echo $options->product_limitation;} ?>" data-total="<?php echo $total - $options->product_limitation;?>">/</span>)
+					<?php } ?>
+				</span>
+			</a>
+		</div>
+		<div class="clear"></div>
+	</div>
+	<?php if($options->posttext!= ''){ ?>
+		<div class="respl-posttext">
+			<?php echo $options->posttext;?>
+		</div>
+    <?php }?>
+</div>

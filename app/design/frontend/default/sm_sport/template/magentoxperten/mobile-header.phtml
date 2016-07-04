@@ -1,0 +1,52 @@
+<div class="mobile-nav" id="mobile-nav">
+    <div class="nav-inner">
+        <div class="nav-icon" id="mobile_hamburger" >
+            <?php echo file_get_contents($this->getSkinUrl('images/mobile_menu/hamburger_menu.svg')); ?>
+        </div>
+        <div class="nav-icon" id="mobile-logo">
+            <a href="<?php echo Mage::getBaseUrl(); ?>">
+                <?php echo file_get_contents($this->getSkinUrl('images/logo.svg')); ?>
+            </a>
+        </div>
+        <div class="nav-icon" id="account-toggle">
+            <?php echo file_get_contents($this->getSkinUrl('images/mobile_menu/account_icon_2.svg')); ?>
+        </div>
+        <div class="nav-icon">
+            <a href="<?php echo Mage::helper('checkout/cart')->getCartUrl(); ?>">
+                <?php echo file_get_contents($this->getSkinUrl('images/mobile_menu/cart_icon_3.svg')); ?>
+            </a>
+        </div>
+        <div id="mobile-search">
+        <?php $catalogSearchHelper =  $this->helper('catalogsearch'); ?>
+            <form id="freetextsearch_form" action="<?php echo $this->getUrl('freetextsearch/search/result') ?>" method="get" autocomplete="off">
+                <button type="button" id="mobilesearch_toggle">
+                    <?php echo file_get_contents($this->getSkinUrl('images/mobile_menu/search_icon_2.svg')); ?>
+                </button>
+                <input id="input_search" type="text" name="keyword" value="" class="input-text" maxlength="<?php echo $catalogSearchHelper->getMaxQueryLength();?>" />
+                <button type="button" id="mobilesearch_reset">
+                    <?php echo file_get_contents($this->getSkinUrl('images/mobile_menu/mobile_search_reset.svg')); ?>
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <div id="mobile-categories">
+        <div class="mobile-cats-inner">
+            <?php echo $this->getChildHtml('mobile-cats'); ?>
+        </div>
+    </div>
+
+    <div id="mobile-login">
+        <div class="inner">
+            <?php
+                if(Mage::getSingleton('customer/session')->isLoggedIn()){
+                    echo "<a class='account-link' href='" . Mage::getUrl('customer/account') . "'>" . $this->__("My Account") . "</a>";
+                    echo "<a class='account-link' href='" . Mage::getUrl('customer/account/logout') . "'>" . $this->__("Logout") . "</a>";
+                } else {
+                    echo $this->getChildHtml('customer_form_mini_login');
+                }
+            ?>
+        </div>
+    </div>
+
+</div>

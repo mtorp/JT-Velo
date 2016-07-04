@@ -1,0 +1,111 @@
+<?php
+/**
+ * Magento
+ *
+ * NOTICE OF LICENSE
+ *
+ * This source file is subject to the Academic Free License (AFL 3.0)
+ * that is bundled with this package in the file LICENSE_AFL.txt.
+ * It is also available through the world-wide-web at this URL:
+ * http://opensource.org/licenses/afl-3.0.php
+ * If you did not receive a copy of the license and are unable to
+ * obtain it through the world-wide-web, please send an email
+ * to license@magentocommerce.com so we can send you a copy immediately.
+ *
+ * DISCLAIMER
+ *
+ * Do not edit or add to this file if you wish to upgrade Magento to newer
+ * versions in the future. If you wish to customize Magento for your
+ * needs please refer to http://www.magentocommerce.com for more information.
+ *
+ * @category    design
+ * @package     base_default
+ * @copyright   Copyright (c) 2012 Magento Inc. (http://www.magentocommerce.com)
+ * @license     http://opensource.org/licenses/afl-3.0.php  Academic Free License (AFL 3.0)
+ */
+?>
+<?php
+/**
+ * Template for Mage_Page_Block_Html
+ */
+?>
+<?php global $var_yttheme;  ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="<?php echo $this->getLang() ?>" lang="<?php echo $this->getLang() ?>">
+	<head> 	<?php echo $this->getChildHtml('head') ?> 	</head>
+	
+	<body id="bd" class="<?php echo $var_yttheme->template ?> <?php  if( $var_yttheme->getParam('layoutstyle') == '2' || $var_yttheme->getParam('layoutstyle') == 'fixed' ){echo "layout-boxed";}?> <?php echo $this->getBodyClass();?>">
+		<?php echo $this->getChildHtml('after_body_start') ?>
+		<div id="sm_wrapper" class="wrapper">
+		
+			<?php echo $this->getChildHtml('global_notices') ?>
+			
+			<div class="page">
+			
+				<?php echo $this->getChildHtml('header') ?>
+				
+				<div class="main-container col2-left-layout">
+					<div class="main">
+					<?php 
+						$_imgHtml   = '';
+
+						if($_category = Mage::registry('current_category') AND $_imgUrl = $_category->getImageUrl()){
+							$_imgHtml = "show_cat_image";
+						}elseif($_product = Mage::registry('current_product')){
+							$_category = Mage::getResourceModel('catalog/category_collection')
+												->addIdFilter($_product->getCategoryIds())
+												->addFieldToFilter('image',array('neq'=>''))
+												->setOrder('level', 'ASC')
+												->setPage(1,1)
+												->addAttributeToSelect("*")
+												->getLastItem();
+							//Zend_Debug::dump($_category);die;
+							$_imgHtml = ($_category AND $_category->getImageUrl())?"show_cat_image":"";
+						}
+					?>	
+						<div  class="container container-wrap <?php echo $_imgHtml ?>">
+							<div class="row">	
+								<div class="wrapp-column">
+									<div class="col-left sidebar">
+										<div class="span3" data-normal="span4" data-tablet="span12" data-stablet="span12">
+											<div class="col-left-inner">
+												<?php echo $this->getChildHtml('left') ?>
+											</div>
+										</div>
+									</div>	
+									<div class="col-main">
+										<div class="span9" data-normal="span8" data-tablet="span12" data-stablet="span12">
+											<?php echo $this->getChildHtml('breadcrumbs') ?>	
+											<?php echo $this->getChildHtml('global_messages') ?>
+											<div class="main-content">
+												<?php echo $this->getChildHtml('content') ?>
+											</div>
+										</div>
+									</div>
+								</div>	
+							</div>	
+	
+							<?php echo $this->getChildHtml('before_footer') ?>
+
+						</div>
+						
+						<div class="sm-afterfooter">
+							<div class="container ">
+								<div class="row">
+									<div class="span12">
+										<?php echo $this->getChildHtml('footer') ?>
+									</div>				
+								</div>				
+							</div>
+						</div>			
+					</div>
+				</div>
+				
+				<div id="bg_footer_bottom">&nbsp;</div>
+				
+			</div>
+		</div>
+		<?php echo $this->getChildHtml('before_body_end') ?>		
+		<?php echo $this->getAbsoluteFooter() ?>
+	</body>
+</html>

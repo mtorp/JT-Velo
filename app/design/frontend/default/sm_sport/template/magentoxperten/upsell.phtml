@@ -1,0 +1,95 @@
+<?php
+
+function in_array_r($needle, $haystack, $strict = false) {
+    foreach ($haystack as $item) {
+        if (($strict ? $item === $needle : $item == $needle) || (is_array($item) && in_array_r($needle, $item, $strict))) {
+            return true;
+        }
+    }
+
+    return false;
+}
+
+$limit = 3;
+
+$title = $this->__("We recommend");
+
+
+?>
+
+<?php if(count($this->getItemCollection()->getItems())): ?>
+	<?php $product_collection = $this->getItemCollection()->getItems(); ?>
+	<?php $product_collection = array_slice($product_collection, 0, $limit);  ?>
+	<div class="upsell-products">
+		<h2 class="section-title"><?php echo $title; ?></h2>
+
+
+		<div class="inner-wrap">
+		<?php foreach ($product_collection as $key => $product): ?>
+			<?php $product->load($product->getId()); ?>
+			<div class="col-xs-12 col-md-4">
+				<div class="product card" data-url="<?php echo $product->getProductUrl(); ?>">
+
+					<?php
+					// Get associated products' colors and images
+					if($product->isConfigurable()){
+						$associated_products = $product->getTypeInstance(true)->getUsedProducts(null, $product);
+						if (count($associated_products) > 0) {
+							$colors = array();
+							for ($i=0; $i < count($associated_products); $i++) { 
+								$associated = Mage::getModel('catalog/product')->load($associated_products[$i]->getId());
+
+								if ($associated->isSaleable() && floor($associated->getStockItem()->getQty()) > 0 ) {
+									$color = $associated->getColorCode();
+									if(!in_array_r($color, $colors)) {
+										$colors[$i]["color"] = $color;
+										$productMediaConfig = Mage::getModel('catalog/product_media_config');
+										$colors[$i]["image"]  = $productMediaConfig->getMediaUrl($associated->getImage());									
+									}
+								}
+							}
+						}
+						} ?>
+					<div class="colors">
+						<?php foreach ($colors as $key => $color): ?>
+							<?php
+							// Measure color lightness and give border if neccessary
+							$hex = str_replace("#", "", $color["color"]);
+							if(strlen($hex) == 3) {
+								$hex = $hex[0] . $hex[0] . $hex[1] . $hex[1] . $hex[2] . $hex[2];
+							}
+
+							$r = hexdec(substr($hex,0,2));
+							$g = hexdec(substr($hex,2,2));
+							$b = hexdec(substr($hex,4,2));
+
+							$lightness = $r+$g+$b;
+
+							$class = "";
+							if ($lightness < 200) $class = "dark";
+							if ($lightness > 500) $class = "light";
+
+							?>
+							<div class="color <?php echo $class; ?>" data-image="<?php echo $color["image"]; ?>" style="background-color: <?php echo $color["color"]; ?>;"></div>
+						<?php endforeach; ?>
+					</div>
+					<div class="image">
+						<img class="default" src="<?php echo $this->helper('catalog/image')->init($product, 'image')->constrainOnly(true)->keepAspectRatio(true)->keepFrame(false)->resize(600, null); ?>" alt="">
+					</div>
+					<div class="details">
+						<h3><?php echo $product->getName(); ?></h3>
+						<div class="price">
+							<?php echo $this->getPriceHtml($product, true, false);
+	      					?>
+						</div>
+					</div>
+					<div class="actions">
+						<a href="javascript:void(0);" class="btn-cart" onclick="setLocation('<?php echo Mage::helper('checkout/cart')->getAddUrl($product) ?>')"><?php echo $this->__("Add to cart") ?></a>
+					</div>
+				</div>
+			</div>
+		<?php endforeach; ?>
+
+		</div>
+	</div>
+<?php endif; ?>

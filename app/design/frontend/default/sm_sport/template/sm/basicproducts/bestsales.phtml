@@ -1,0 +1,132 @@
+<?php
+    $_productCollection = $this->getLoadedProductCollection();
+    $_helper = $this->helper('catalog/output');
+    $imgWidth = $this->product_image_width;
+    $imgHeight = $this->product_image_height;
+
+    if ($imgWidth <= 0 || $imgHeight <= 0){
+    	$this->product_image_disp = false;
+    }
+?>
+<script  type="text/javascript">
+//<![CDATA[
+$jsmart(document).ready(function($){
+	function getItemPerPage(){	//get width by class class_width, return number px
+		json_class_width = {
+			'wide'		: '4',
+			'normal'	: '2',
+			'tablet'	: '2',
+			'stablet'	: '2',
+			'mobile'	: '1',
+			};
+		for(var key in json_class_width){
+			if ( json_class_width.hasOwnProperty ( key ) ){
+				// alert( key '=>' json_class_width [ key ] );
+				device = $.fn.detectDevice(); 
+				if(device){
+					return json_class_width[ device ];
+				}
+			}
+		}
+		return json_class_width['wide'];
+	}
+	function init(){	
+		item_per_page = parseInt(getItemPerPage());
+		device = $.fn.detectDevice(); 
+		// console.log("basic:"+item_per_page+":"+device);
+		
+		// $('#bestsale').pajinate({
+			// start_page : 0,
+			// items_per_page : item_per_page	
+		// });
+	}
+	// $('#bestsale ul li:eq(2)').addClass("last");
+	// $('#bestsale ul li:eq(5)').addClass("last");
+	// $('#bestsale ul li:eq(8)').addClass("last");
+	// $('#bestsale ul li:eq(8)').addClass("last");		
+	s = $(".page_navigation"),shtml=s.html(),sid2='';
+	// console.log(shtml);
+	init();
+  	$(window).resize(function(){
+		
+		if (sid2) clearTimeout(sid2);
+		
+		sid2 = setTimeout(function(){//console.log($('body').width()+"-"+$('body').height());
+			s.children().empty().remove(),s.html(shtml);
+			init();
+		}, 200);	
+  	})		
+});	
+//]]>
+</script>
+<div id="bestsale" class="block-bestsale block">
+	<?php if ($this->block_title){ ?>
+		<?php 
+		//$arr_word =  $this->title ? explode(' ',$this->title) : "";
+		//$join_word = array_shift($arr_word).' <span>'.implode(' ',$arr_word).'</span>';
+		?>	
+		<div class="block-title"><h3 style=""><?php echo $this->block_title; ?></h3></div>
+		<div class="des-block">Lorem ipsum dolor sit amet, consectetur adipiscing elit ac lobortis lacus</div>
+		<div class="page_navigation"></div>	
+	<?php } ?>
+    <div class="block-content">
+    	<?php if(!$_productCollection->count()): ?>
+        	<p class="note-msg"><?php echo $this->__('There are no products matching the selection.') ?></p>
+        <?php else: 
+		$row = 0;
+        $col= 0;
+        $count = 1;
+		$i=0;
+		$_collectionSize = $_productCollection->count();
+		$dn=4; $dt=3; $ds=2; $dm=1;
+		foreach($_productCollection as $_product):
+			$now = date("Y-m-d");
+			$newsFrom= substr($_product->getData('news_from_date'),0,10);
+			$newsTo=  substr($_product->getData('news_to_date'),0,10);
+			$specialprice = Mage::getModel('catalog/product')->load($_product->getId())->getSpecialPrice(); 
+
+			$this->_reviewsHelperBlock = $this->getLayout()->createBlock('review/helper');
+            if( ($count==1) || (($count-1)%$this->getNumColumns()== 0) ){
+                $row++;
+            ?>
+            <div class="products-grid category-products">
+			<div class="products cols-<?php echo $this->getNumColumns().' row-'.$row ; ?> content">
+			<div id="homeCarousel" class="carousel slide" data-interval="">
+				<ol class="carousel-indicators">
+					<li data-target="#homeCarousel" data-slide-to="0" class="active"></li>
+					<li data-target="#homeCarousel" data-slide-to="1"></li>
+					<li data-target="#homeCarousel" data-slide-to="2"></li>
+				</ol>			
+				<div class="carousel-inner">
+				<?php
+				}?>
+					<?php if(!(($count-1)%$dn)){ ?> 
+					<div class="item <?php echo $count ?> <?php if($count==1){echo "active";} ?>">
+						<div class="row-fluid">
+						<?php } ?>
+							<div class="span3 <?php echo $count." ".$count%$dn ?>" data-normal="span4" data-tablet="span4" data-stablet="span4" data-mobile="span12">
+								<?php include dirname(__FILE__) . '/bestsales/item.phtml'; ?>
+							</div> <!--END span3-->
+					<?php if(!($count%$dn) || ($count == $_productCollection->count()) ){ ?>
+						</div> <!-- END row -->
+					</div><!-- END item -->
+					<?php } ?>
+					<?php
+					//echo $count.' '.$_productCollection->count().' '.$this->getNumColumns();
+					if( ($count == $_productCollection->count()) || ($count%$this->getNumColumns()==0) ){
+					?>
+				</div>
+				<!-- Carousel nav -->
+				<a class="carousel-control left" href="#homeCarousel" data-slide="prev">&lsaquo;</a>
+				<a class="carousel-control right" href="#homeCarousel" data-slide="next">&rsaquo;</a>			
+			</div>
+			</div> 
+			</div> <!-- END products-grid -->
+				<?php
+			}
+			$count = $count+1;
+			?>
+        <?php endforeach; ?>
+    <?php endif; ?>
+	</div>
+</div>
