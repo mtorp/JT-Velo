@@ -1,0 +1,38 @@
+<?xml version="1.0"?>
+<layout>
+        <default translate="label" module="flexibleforms" >
+            <reference name="top.links">
+                <block type="flexibleforms/flexibleforms" name="flexibleforms_top_link" >
+                    <action method="addFlexibleformsTopLink"></action>
+                </block>
+            </reference>
+            <reference name="footer_links">
+                <block type="flexibleforms/flexibleforms" name="flexibleforms_footer_link" >
+                    <action method="addFlexibleformsFooterLink"></action>
+                </block>
+            </reference>
+            <reference name="head">
+                <block type="flexibleforms/flexibleforms" name="addJsCss" >
+                    <action method="addJsCss"></action>
+                </block>
+            </reference>
+        </default>
+
+        <flexibleforms_index_index>
+            <reference name="root">
+                <action method="setTemplate"><template>page/2columns-right.phtml</template></action>
+            </reference>
+            <reference name="content">
+                <block type="flexibleforms/collection" name="flexibleforms" template="flexibleforms/flexibleforms.phtml" />
+            </reference>
+	</flexibleforms_index_index>
+
+        <flexibleforms_index_view>
+		<reference name="root">
+			<action method="setTemplate"><template>page/1column.phtml</template></action>
+		</reference>
+		<reference name="content">
+			<block type="flexibleforms/form" name="form" template="flexibleforms/form.phtml" />
+		</reference>
+	</flexibleforms_index_view>
+</layout>
